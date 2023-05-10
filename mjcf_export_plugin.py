@@ -23,6 +23,9 @@ bl_info = {
 
 
 class MuJoCoExportOperator(Operator, ExportHelper):
+    """ 
+    Builds an MJCF file from the scene hierarchy.
+    """
     bl_idname = "export_scene.mjcf_export"  # ID name of the operator
     bl_label = "Export MJCF"         # Label for export button
     bl_options = {'PRESET', 'UNDO'}

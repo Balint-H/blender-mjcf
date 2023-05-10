@@ -7,7 +7,7 @@ Add the script through Preferences > Add-ons > Install...
 
 
 # Usage
-Parented mesh objects will be converted into body hierarchies in the MJCF file. The only elements apart from bodies and mesh geoms so far are sites, hinge joints and free joints. They are all interpreted from "Empty" objects in the scene. Sites should have "site" in their name. Joints should have "joint" in their name, and hinge joints should use the "single arrow" type, freejoints should use "plain axes".
+Parented mesh objects will be converted into body hierarchies in the MJCF file. The only elements apart from bodies and mesh geoms so far are sites, hinge joints and free joints. They are all interpreted from "Empty" objects in the scene. Sites should have "site" in their name. Joints should have "joint" in their name. Use the "circle" type for hinge joints, "plain axes" for free joints, "sphere" for ball joints and "single arrow" for slide joints.
 
 It is recommended to reset the origin of child objects so they align with their DOFs' location and principal axis. This will make the generated MJCF easier to read and more precise.
 
@@ -18,7 +18,6 @@ The expectation is that the generated file will be further edited by user to add
 
 # Planned features
 Feel free to send pull requests. Reasonably straightforward additions would be:
-- Support slider and ball joints
 - Add option in export operator to automatically add a freejoint to the root body
 - Add option in export operator to define precision level of numbers
 - Add option for empty bodies, and primitve geoms
