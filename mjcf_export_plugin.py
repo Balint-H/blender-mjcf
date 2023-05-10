@@ -99,14 +99,20 @@ def write_body(obj, file, level, dir_path, export=False):
     # Blender uses local reference frames, but there's some trickery with parent inverses. This is why we called 
     rot = obj.rotation_quaternion
     
-    if obj.type == "EMPTY" and "site" in obj.name.lower():
+    
+    if site_criteria(obj):
         # Write the site element with the local position
         file.write(f'{indent}<site name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" size="{obj.empty_display_size}" />\n')
-    elif obj.type == "EMPTY" and obj.empty_display_type == "SINGLE_ARROW" and "joint" in obj.name.lower():
-        axis = rot @ Vector((0, 0, 1))
+    elif hinge_joint_criteria(obj):
+        axis = rot @ Vector((0, 1, 0))
         file.write(f'{indent}<joint type="hinge" name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" axis="{axis[0]} {axis[1]} {axis[2]}" />\n')
-    elif obj.type == "EMPTY" and obj.empty_display_type == "PLAIN_AXES" and "joint" in obj.name.lower():
+    elif slide_joint_criteria(obj):
+        axis = rot @ Vector((0, 0, 1))
+        file.write(f'{indent}<joint type="slide" name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" axis="{axis[0]} {axis[1]} {axis[2]}" />\n')
+    elif free_joint_criteria(obj):
         file.write(f'{indent}<joint type="free" name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}"  />\n')
+    elif ball_joint_criteria(obj):
+        file.write(f'{indent}<joint type="ball" name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}"  />\n')
     
     elif obj.type == "MESH":
         obj.data.update()
@@ -171,6 +177,22 @@ def register():
 def unregister():
     bpy.utils.unregister_class(MuJoCoExportOperator)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_import)
+    
+def site_criteria(obj):
+    return obj.type == "EMPTY" and "site" in obj.name.lower()
+    
+def hinge_joint_criteria(obj):
+    return obj.type == "EMPTY" and obj.empty_display_type == "CIRCLE" and "joint" in obj.name.lower()
+    
+def free_joint_criteria(obj):
+    return obj.type == "EMPTY" and obj.empty_display_type == "PLAIN_AXES" and "joint" in obj.name.lower()
+    
+def ball_joint_criteria(obj):
+    return obj.type == "EMPTY" and obj.empty_display_type == "SPHERE" and "joint" in obj.name.lower()
+    
+def slide_joint_criteria(obj):
+    return obj.type == "EMPTY" and obj.empty_display_type == "SINGLE_ARROW" and "joint" in obj.name.lower()
+
     
 if __name__ == "__main__":
     register()
