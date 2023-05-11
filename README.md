@@ -1,5 +1,5 @@
 # Motivation
-MuJoCo scene construction lacks a convenient 3D GUI you can use to compose hierarchies, edit meshes, or add elements. Although Blender is not a proper CAD software it is really smooth to extend with scripts, and quickly align a scene. 
+MuJoCo scene construction lacks a convenient 3D GUI you can use to compose hierarchies, edit meshes, or add elements. Although Blender is not a proper CAD software it is really smooth to extend with scripts, and aligning scenes with it is a quick and flexible process. 
 
 
 # Installation
@@ -7,7 +7,7 @@ Add the script through Preferences > Add-ons > Install...
 
 
 # Usage
-Parented mesh objects will be converted into body hierarchies in the MJCF file. The only elements apart from bodies and mesh geoms so far are sites, hinge joints and free joints. They are all interpreted from "Empty" objects in the scene. Sites should have "site" in their name. Joints should have "joint" in their name. Use the "circle" type for hinge joints, "plain axes" for free joints, "sphere" for ball joints and "single arrow" for slide joints.
+Parented mesh objects will be converted into body hierarchies in the MJCF file. The only elements apart from bodies and mesh geoms so far are sites and joints. They are all interpreted from "Empty" objects in the scene. Sites should have "site" in their name. Joints should have "joint" in their name. Use the "circle" type for hinge joints, "plain axes" for free joints, "sphere" for ball joints and "single arrow" for slide joints.
 
 It is recommended to reset the origin of child objects so they align with their DOFs' location and principal axis. This will make the generated MJCF easier to read and more precise.
 
