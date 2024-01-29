@@ -13,10 +13,13 @@ To get around the misalignment with the joint axes, you could add and parent "Em
 
 ## Step 1.5: Edit meshes (Optional)
 You may want to perform operations on your meshes, such as decimating the mesh to reduce vertex count, or scaling the meshes up or down (edit the scale in the transform tab, then apply scale by selecting the option after pressing `Ctrl+A`. Unapplied scale will not be used in the export).
+
 ## Step 2: Setting origins
 ![files](./img/Step_2.jpg)
-As you saw on the first figure and on this close up of the proximal index segment, the bodies may not be at resting position, or may be entirely offset. We'll use the cursor tool to define our desired orientation of the body frame. Select the Geometry option for the cursor orientation and click on a surface that is perpendicular to the joint axis (the side of the joint here). This will align the cursor with the surface normal there.
-In addition to the orientation we'll also need the right origin position. We want to specify it as the midpoint of the joint axis that passes through the revolute joint. Enter Edit mode with `Tab`. Make a balanced selection of elements (e.g. vertices) on both side of the joint. You can add to your selection by holding down `Shift`, or remove from it with `Ctrl`.
+As you saw on the first figure and on this close up of the proximal index segment, the bodies may not be at resting position, or may be entirely offset. We'll use the [cursor tool](https://docs.blender.org/manual/en/latest/editors/3dview/3d_cursor.html) to define our desired orientation of the body frame. Select the Geometry option for the cursor orientation (highlighted on figure below) and click on a surface that is perpendicular to the joint axis (the side of the joint here). This will align the cursor with the surface normal there.
+In addition to the orientation we'll also need the right origin position. We want to specify it as the midpoint of the joint axis that passes through the revolute joint. 
+
+Enter Edit mode with `Tab`. You should now be able to see the vertices that make up your mesh. Make a balanced selection of elements (e.g. vertices) on both side of the joint. You can add to your selection by holding down `Shift`, or remove from it with `Ctrl`.
 ![files](./img/Step_3.jpg)
 Once you have the relevant selection, you can move your Cursor tool to the mean position with `Shift+S` then `Cursor to selection`. Now the cursor is at the right position. The orientation will be unchanged from when we set it to match the geometry. 
 
@@ -31,6 +34,11 @@ Specify in the top toolbar that you will be using the Cursor Tool as your refere
 Here I aligned the Cursor tool with the geometry of the palm, then aligned the proximal finger segment with it so it is fully extended.
 ![files](./img/Step_9.jpg)
 Then I repeated the all the steps for the distal finger segment to set its origin/body frame to a clean pose too. To move the shifted distal segment to where the proximal terminated, I placed the cursor to the midpoint of the proximal semgent, selected the distal segment with the corrected origin, then used `Shift+S>Selection to cursor`. Afterwards there was a 90 degree offset I needed to fix, which I performed with the rotate tool (while holding down the `Ctrl` key to snap to exact 5 degree increments)
+
+<details>
+  <summary>More about origins</summary>
+  Where the Blender transform's origin is, that's where the exported MuJoCo body's position will be, with respect to its parent. You can find further information about origins at the [Blender docs](https://docs.blender.org/manual/en/latest/scene_layout/object/origin.html). Specifying the origin to overlap with the body's joint axis, and to be aligned with it means the joint doesn't need to define the `pos` and `quat`/`euler` attributes. This results in easier to read and interpret xml files. 
+</details>
 
 ## Step 3: Parenting
 I recommend cleaning up the hierarchy so there are no nested bodies without meshes (or geoms). To parent a body to another one, select first the child, then the parent either in view or the hierarchy (hold down `Ctrl`) and use `Ctrl+P>Object (Keep Transform)`.
