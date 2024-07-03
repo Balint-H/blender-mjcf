@@ -57,7 +57,7 @@ Add empty objects to represent sites or joints. This can be particularly helpful
 Now you are ready to export. Select the root body in the view, then the `Export` option in the `File` tab and click on `MJCF` (assuming the plugin is installed correctly).
 ![files](./img/Step_14.jpg)
 ![files](./img/Step_15.jpg)
-The meshes will exported to a new folder next to where you specified the MJCF to be saved, and will be automatically referenced in the XML.
+The meshes will be exported to a new folder next to where you specified the MJCF to be saved, and will be automatically referenced in the XML.
 Make further necessary edits to your XML afterwards. E.g. since all the body frames were aligned with the intended joint axes, all we have to do is add a `<joint/>` element for the moving bodies, and we don't need to additionally define precise axes/positions. Nice!
 
 ![files](./img/Step_16.jpg)
