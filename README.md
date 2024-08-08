@@ -15,6 +15,7 @@ Select the root body, go to File > Export > MJCF (.xml), and enable the "Selecte
 
 The expectation is that the generated file will be further edited by user to add necessary joints, tendons, etc.
 
+[A more detailed guide here](guide/guide.md)
 
 # Planned features
 Feel free to send pull requests. Reasonably straightforward additions would be:
