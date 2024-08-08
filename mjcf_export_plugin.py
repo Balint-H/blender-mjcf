@@ -65,7 +65,7 @@ class MuJoCoExportOperator(Operator, ExportHelper):
         
         return {'FINISHED'}
 
-def write_mjcf(dir_path, model_file_name, selected_objects,  export=False):
+def write_mjcf(dir_path, model_file_name, selected_objects, export=False):
     # Open the file for writing
     with open(os.path.join(dir_path, model_file_name), "w") as file:
 
@@ -74,10 +74,11 @@ def write_mjcf(dir_path, model_file_name, selected_objects,  export=False):
         file.write('  <compiler meshdir="./mesh"/>\n')
         file.write('  <worldbody>\n')
 
+        mesh_file_names = []
         # Write the bodies recursively
         for obj in selected_objects:
             if obj.parent is None:
-                mesh_file_names = write_body(obj, file, 2, dir_path, export)
+                mesh_file_names.extend(write_body(obj, file, 2, dir_path, export))
 
         # Write the closing tags for the XML
         file.write('  </worldbody>\n')
@@ -121,7 +122,6 @@ def write_body(obj, file, level, dir_path, export=False):
         obj.data.update()
         # Write the body element with the local position and rotation
         file.write(f'{indent}<body name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" quat="{rot[0]} {rot[1]} {rot[2]} {rot[3]}">\n')
-        mesh = obj.data
         mesh_dir = os.path.join(dir_path, 'mesh')
         os.makedirs(mesh_dir, exist_ok=True)
         filepath = os.path.join(mesh_dir, f'{obj.name}.stl')
