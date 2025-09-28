@@ -124,32 +124,36 @@ def write_body(obj, file, level, dir_path, export, exported_meshes, export_forma
     # Blender uses local reference frames, but there's some trickery with parent inverses. This is why we called
     rot = obj.rotation_quaternion
 
+    # Collect custom attributes. Make sure exclude those added by addons.
+    attrs = ' '.join(f'{k}="{v}"' for k, v in obj.items() if k not in obj.bl_rna.properties)
+
     if site_criteria(obj):
         # Write the site element with the local position
         file.write(
-            f'{indent}<site name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" size="{scale * obj.empty_display_size}" />\n')
+            f'{indent}<site name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" size="{scale * obj.empty_display_size}" {attrs} />\n')
     elif hinge_joint_criteria(obj):
         axis = rot @ Vector((0, 1, 0))
         file.write(
-            f'{indent}<joint type="hinge" name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" axis="{axis[0]} {axis[1]} {axis[2]}" />\n')
+            f'{indent}<joint type="hinge" name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" axis="{axis[0]} {axis[1]} {axis[2]}" {attrs} />\n')
     elif slide_joint_criteria(obj):
         axis = rot @ Vector((0, 0, 1))
         file.write(
-            f'{indent}<joint type="slide" name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" axis="{axis[0]} {axis[1]} {axis[2]}" />\n')
+            f'{indent}<joint type="slide" name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" axis="{axis[0]} {axis[1]} {axis[2]}" {attrs} />\n')
     elif free_joint_criteria(obj):
-        file.write(f'{indent}<joint type="free" name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}"  />\n')
+        file.write(f'{indent}<joint type="free" name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" {attrs} />\n')
     elif ball_joint_criteria(obj):
-        file.write(f'{indent}<joint type="ball" name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}"  />\n')
+        file.write(f'{indent}<joint type="ball" name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" {attrs} />\n')
 
     elif obj.type == "MESH":
         obj.data.update()
         # Write the body element with the local position and rotation
         file.write(
-            f'{indent}<body name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" quat="{rot[0]} {rot[1]} {rot[2]} {rot[3]}">\n')
+            f'{indent}<body name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" quat="{rot[0]} {rot[1]} {rot[2]} {rot[3]}" {attrs}>\n')
         mesh_dir = os.path.join(dir_path, 'mesh')
         os.makedirs(mesh_dir, exist_ok=True)
         mesh_name = obj.data.name
         filepath = os.path.join(mesh_dir, f'{mesh_name}.{export_format.lower()}')
+        geom_attrs = ' '.join(f'{k}="{v}"' for k, v in obj.data.items() if k not in obj.data.bl_rna.properties)
 
         if mesh_name not in exported_meshes:
             if export:
@@ -188,7 +192,7 @@ def write_body(obj, file, level, dir_path, export, exported_meshes, export_forma
 
         # Write the geom element for the object
         r, g, b, a = obj.color
-        file.write(f'{indent}  <geom type="mesh" name="{obj.name} geom" mesh="{mesh_name}" rgba="{r} {g} {b} {a}" />\n')
+        file.write(f'{indent}  <geom type="mesh" name="{obj.name} geom" mesh="{mesh_name}" rgba="{r} {g} {b} {a}" {geom_attrs} />\n')
 
     child_file_paths = []
     # Recursively write the children
