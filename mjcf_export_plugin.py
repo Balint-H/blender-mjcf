@@ -68,7 +68,7 @@ class MuJoCoExportOperator(Operator, ExportHelper):
             # Export all objects
             objects_to_export = bpy.context.scene.objects
 
-        fix_scene()
+        fix_scene(objects_to_export)
 
         write_mjcf(dir_path, file_name, objects_to_export, export=True, export_format=self.export_format)
 
@@ -110,6 +110,7 @@ def write_body(obj, file, level, dir_path, export, exported_meshes, export_forma
 
     # Get the local position and rotation of the object, need to switch to quaternion mode to calculate elements
     pos = obj.location
+    rotation_mode = obj.rotation_mode
     obj.rotation_mode = 'QUATERNION'
 
     # Blender uses local reference frames, but there's some trickery with parent inverses. This is why we called
@@ -188,14 +189,14 @@ def write_body(obj, file, level, dir_path, export, exported_meshes, export_forma
     if obj.type == "MESH":
         file.write(f'{indent}</body>\n')
 
+    obj.rotation_mode = rotation_mode
+
     return [*filepaths, *child_file_paths]
 
 
-def fix_scene():
+def fix_scene(objects_to_export):
     # Iterate through all objects in the scene
-    for obj in bpy.context.scene.objects:
-        # Set the rotation mode to quaternion
-        obj.rotation_mode = 'QUATERNION'
+    for obj in objects_to_export:
         if obj.type == "EMPTY" and "site" in obj.name:
             obj.empty_display_size *= sum(obj.scale * obj.delta_scale) / 3
             obj.scale = (1, 1, 1)
