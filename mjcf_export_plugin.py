@@ -98,7 +98,7 @@ def write_mjcf(dir_path, model_file_name, selected_objects, export=False, export
         mesh_elements = [f'\n    <mesh name="{os.path.splitext(filename)[0]}" file="{filename}"/>' for filename in
                          mesh_file_names]
         mesh_string = "".join(mesh_elements)
-        asset_string = f"<asset>{mesh_string}\n  </asset>"
+        asset_string = f"  <asset>{mesh_string}\n  </asset>\n"
         file.write(asset_string)
         file.write('</mujoco>\n')
 
