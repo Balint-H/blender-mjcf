@@ -1,5 +1,5 @@
 import bpy
-from bpy.props import StringProperty, BoolProperty, EnumProperty
+from bpy.props import StringProperty, BoolProperty, EnumProperty, FloatProperty
 from bpy.types import Operator
 from bpy_extras.io_utils import ExportHelper
 
@@ -52,6 +52,14 @@ class MuJoCoExportOperator(Operator, ExportHelper):
         default='STL'
     )
 
+    scene_scale: FloatProperty(
+        name="Scene Scale",
+        description="Scene scale",
+        default=1.0,
+        soft_min=0.,
+        precision=4,
+    )
+
     def execute(self, context):
         dir_path = os.path.dirname(self.filepath)
         file_name = os.path.basename(self.filepath)
@@ -70,12 +78,12 @@ class MuJoCoExportOperator(Operator, ExportHelper):
 
         fix_scene(objects_to_export)
 
-        write_mjcf(dir_path, file_name, objects_to_export, export=True, export_format=self.export_format)
+        write_mjcf(dir_path, file_name, objects_to_export, export=True, export_format=self.export_format, scale=self.scene_scale)
 
         return {'FINISHED'}
 
 
-def write_mjcf(dir_path, model_file_name, selected_objects, export=False, export_format='STL'):
+def write_mjcf(dir_path, model_file_name, selected_objects, export=False, export_format='STL', scale=1.0):
     exported_meshes = set()  # Set to keep track of exported meshes
 
     # Open the file for writing
@@ -90,7 +98,7 @@ def write_mjcf(dir_path, model_file_name, selected_objects, export=False, export
         # Write the bodies recursively
         for obj in selected_objects:
             if obj.parent is None:
-                mesh_file_names.extend(write_body(obj, file, 2, dir_path, export, exported_meshes, export_format))
+                mesh_file_names.extend(write_body(obj, file, 2, dir_path, export, exported_meshes, export_format, scale))
 
         # Write the closing tags for the XML
         file.write('  </worldbody>\n')
@@ -103,13 +111,13 @@ def write_mjcf(dir_path, model_file_name, selected_objects, export=False, export
         file.write('</mujoco>\n')
 
 
-def write_body(obj, file, level, dir_path, export, exported_meshes, export_format):
+def write_body(obj, file, level, dir_path, export, exported_meshes, export_format, scale):
     # Set the indentation for this level
     indent = "  " * level
     filepaths = []
 
     # Get the local position and rotation of the object, need to switch to quaternion mode to calculate elements
-    pos = obj.location
+    pos = obj.location * scale
     rotation_mode = obj.rotation_mode
     obj.rotation_mode = 'QUATERNION'
 
@@ -119,7 +127,7 @@ def write_body(obj, file, level, dir_path, export, exported_meshes, export_forma
     if site_criteria(obj):
         # Write the site element with the local position
         file.write(
-            f'{indent}<site name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" size="{obj.empty_display_size}" />\n')
+            f'{indent}<site name="{obj.name}" pos="{pos[0]} {pos[1]} {pos[2]}" size="{scale * obj.empty_display_size}" />\n')
     elif hinge_joint_criteria(obj):
         axis = rot @ Vector((0, 1, 0))
         file.write(
@@ -150,7 +158,7 @@ def write_body(obj, file, level, dir_path, export, exported_meshes, export_forma
                 obj.select_set(True)
 
                 matrix_world = obj.matrix_world.copy()
-                obj.matrix_world = mathutils.Matrix.Identity(4)
+                obj.matrix_world = mathutils.Matrix.Scale(scale, 4)
                 obj.data.update()
 
                 if export_format == 'STL':
@@ -184,7 +192,7 @@ def write_body(obj, file, level, dir_path, export, exported_meshes, export_forma
     child_file_paths = []
     # Recursively write the children
     for child in obj.children:
-        child_file_paths.extend(write_body(child, file, level + 1, dir_path, export, exported_meshes, export_format))
+        child_file_paths.extend(write_body(child, file, level + 1, dir_path, export, exported_meshes, export_format, scale))
 
     if obj.type == "MESH":
         file.write(f'{indent}</body>\n')
