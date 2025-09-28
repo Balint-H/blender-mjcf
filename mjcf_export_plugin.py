@@ -187,7 +187,8 @@ def write_body(obj, file, level, dir_path, export, exported_meshes, export_forma
             filepaths.append(os.path.basename(filepath))
 
         # Write the geom element for the object
-        file.write(f'{indent}  <geom type="mesh" name="{obj.name} geom" mesh="{mesh_name}" />\n')
+        r, g, b, a = obj.color
+        file.write(f'{indent}  <geom type="mesh" name="{obj.name} geom" mesh="{mesh_name}" rgba="{r} {g} {b} {a}" />\n')
 
     child_file_paths = []
     # Recursively write the children
