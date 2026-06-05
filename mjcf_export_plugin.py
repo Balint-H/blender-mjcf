@@ -60,6 +60,12 @@ class MuJoCoExportOperator(Operator, ExportHelper):
         precision=4,
     )
 
+    include_filename: StringProperty(
+        name="Include filename",
+        description="Optionally include this file in the model XML",
+        default="",
+    )
+
     def execute(self, context):
         dir_path = os.path.dirname(self.filepath)
         file_name = os.path.basename(self.filepath)
@@ -78,12 +84,20 @@ class MuJoCoExportOperator(Operator, ExportHelper):
 
         fix_scene(objects_to_export)
 
-        write_mjcf(dir_path, file_name, objects_to_export, export=True, export_format=self.export_format, scale=self.scene_scale)
+        write_mjcf(
+            dir_path,
+            file_name,
+            objects_to_export,
+            export=True,
+            export_format=self.export_format,
+            scale=self.scene_scale,
+            include_filename=self.include_filename,
+        )
 
         return {'FINISHED'}
 
 
-def write_mjcf(dir_path, model_file_name, selected_objects, export=False, export_format='STL', scale=1.0):
+def write_mjcf(dir_path, model_file_name, selected_objects, export=False, export_format='STL', scale=1.0, include_filename=""):
     exported_meshes = set()  # Set to keep track of exported meshes
 
     # Open the file for writing
@@ -92,6 +106,8 @@ def write_mjcf(dir_path, model_file_name, selected_objects, export=False, export
         # Write the MJCF header
         file.write('<mujoco>\n')
         file.write('  <compiler meshdir="./mesh"/>\n')
+        if include_filename:
+            file.write(f'  <include file="{include_filename}"/>\n')
         file.write('  <worldbody>\n')
 
         mesh_file_names = []
